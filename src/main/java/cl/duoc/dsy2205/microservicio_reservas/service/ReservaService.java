@@ -1,13 +1,20 @@
 package cl.duoc.dsy2205.microservicio_reservas.service;
 
+import cl.duoc.dsy2205.microservicio_reservas.entity.Reserva;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import cl.duoc.dsy2205.microservicio_reservas.entity.Reserva;
-
 public interface ReservaService {
     List<Reserva> findAll();
-    Optional<Reserva> findById(Long id);
-    Reserva save(Reserva reserva);
-    void deleteById(Long id);
+    Optional<Reserva> findById(Long idReserva);
+    Reserva create(Reserva r);
+    Optional<Reserva> update(Long idReserva, Reserva r);
+    boolean delete(Long idReserva);
+
+    List<Reserva> porUsuario(Long idUsuario);
+    List<Reserva> porLaboratorio(Long idLab);
+    List<Reserva> porFecha(LocalDate fecha);
+    List<Reserva> porRangoFechas(LocalDate desde, LocalDate hasta);
 }
