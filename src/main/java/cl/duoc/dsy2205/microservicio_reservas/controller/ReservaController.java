@@ -9,10 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import jakarta.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/reservas")
 public class ReservaController {
+
+    private static final Logger log = LoggerFactory.getLogger(ReservaController.class);
 
     private final ReservaService service;
 
@@ -21,7 +27,7 @@ public class ReservaController {
     }
 
     @GetMapping
-    public List<Reserva> listar() { return service.findAll(); }
+    public List<Reserva> listar() { log.info("GET /api/reservas"); return service.findAll(); }
 
     @GetMapping("/{id}")
     public ResponseEntity<Reserva> obtener(@PathVariable Long id) {
@@ -31,13 +37,14 @@ public class ReservaController {
     }
 
     @PostMapping
-    public ResponseEntity<Reserva> crear(@RequestBody Reserva r) {
+    public ResponseEntity<Reserva> crear(@Valid @RequestBody Reserva r) {
+        log.info("POST /api/reservas - creating reserva: user={} lab={}", r.getIdUsuario(), r.getIdLab());
         Reserva creada = service.create(r);
         return ResponseEntity.created(URI.create("/api/reservas/" + creada.getIdReserva())).body(creada);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reserva> actualizar(@PathVariable Long id, @RequestBody Reserva r) {
+    public ResponseEntity<Reserva> actualizar(@PathVariable Long id, @Valid @RequestBody Reserva r) {
         return service.update(id, r)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -45,6 +52,7 @@ public class ReservaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        log.info("DELETE /api/reservas/{}", id);
         return service.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
