@@ -1,18 +1,27 @@
 package cl.duoc.dsy2205.microservicio_reservas.controller;
 
-import cl.duoc.dsy2205.microservicio_reservas.entity.Reserva;
-import cl.duoc.dsy2205.microservicio_reservas.service.ReservaService;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
-import jakarta.validation.Valid;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import cl.duoc.dsy2205.microservicio_reservas.entity.Reserva;
+import cl.duoc.dsy2205.microservicio_reservas.service.ReservaService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -39,8 +48,10 @@ public class ReservaController {
     @PostMapping
     public ResponseEntity<Reserva> crear(@Valid @RequestBody Reserva r) {
         log.info("POST /api/reservas - creating reserva: user={} lab={}", r.getIdUsuario(), r.getIdLab());
-        Reserva creada = service.create(r);
-        return ResponseEntity.created(URI.create("/api/reservas/" + creada.getIdReserva())).body(creada);
+    Reserva creada = service.create(r);
+    Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
+    URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
+    return ResponseEntity.created(location).body(creada);
     }
 
     @PutMapping("/{id}")
