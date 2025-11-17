@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cl.duoc.dsy2205.microservicio_reservas.dto.ReservaDTO;
 import cl.duoc.dsy2205.microservicio_reservas.entity.Reserva;
+import cl.duoc.dsy2205.microservicio_reservas.mapper.ReservaMapper;
 import cl.duoc.dsy2205.microservicio_reservas.service.ReservaService;
 import jakarta.validation.Valid;
 
@@ -36,28 +38,29 @@ public class ReservaController {
     }
 
     @GetMapping
-    public List<Reserva> listar() { log.info("GET /api/reservas"); return service.findAll(); }
+    public List<ReservaDTO> listar() { log.info("GET /api/reservas"); return service.findAll().stream().map(ReservaMapper::toDto).toList(); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reserva> obtener(@PathVariable Long id) {
-        return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ReservaDTO> obtener(@PathVariable Long id) {
+        Reserva r = service.findById(id).orElse(null);
+        return ResponseEntity.ok(ReservaMapper.toDto(r));
     }
 
     @PostMapping
-    public ResponseEntity<Reserva> crear(@Valid @RequestBody Reserva r) {
+    public ResponseEntity<ReservaDTO> crear(@Valid @RequestBody ReservaDTO rDto) {
+        Reserva r = ReservaMapper.toEntity(rDto);
         log.info("POST /api/reservas - creating reserva: user={} lab={}", r.getIdUsuario(), r.getIdLab());
-    Reserva creada = service.create(r);
-    Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
-    URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
-    return ResponseEntity.created(location).body(creada);
+        Reserva creada = service.create(r);
+        Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
+        URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
+        return ResponseEntity.created(location).body(ReservaMapper.toDto(creada));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reserva> actualizar(@PathVariable Long id, @Valid @RequestBody Reserva r) {
+    public ResponseEntity<ReservaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody ReservaDTO rDto) {
+        Reserva r = ReservaMapper.toEntity(rDto);
         return service.update(id, r)
-                .map(ResponseEntity::ok)
+                .map(res -> ResponseEntity.ok(ReservaMapper.toDto(res)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -69,26 +72,26 @@ public class ReservaController {
 
     // Búsquedas
     @GetMapping("/buscar/usuario")
-    public List<Reserva> porUsuario(@RequestParam("id") Long idUsuario) {
-        return service.porUsuario(idUsuario);
+    public List<ReservaDTO> porUsuario(@RequestParam("id") Long idUsuario) {
+        return service.porUsuario(idUsuario).stream().map(ReservaMapper::toDto).toList();
     }
 
     @GetMapping("/buscar/lab")
-    public List<Reserva> porLab(@RequestParam("id") Long idLab) {
-        return service.porLaboratorio(idLab);
+    public List<ReservaDTO> porLab(@RequestParam("id") Long idLab) {
+        return service.porLaboratorio(idLab).stream().map(ReservaMapper::toDto).toList();
     }
 
     @GetMapping("/buscar/fecha")
-    public List<Reserva> porFecha(@RequestParam("dia")
+    public List<ReservaDTO> porFecha(@RequestParam("dia")
                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dia) {
-        return service.porFecha(dia);
+        return service.porFecha(dia).stream().map(ReservaMapper::toDto).toList();
     }
 
     @GetMapping("/buscar/rango")
-    public List<Reserva> porRango(@RequestParam("desde")
+    public List<ReservaDTO> porRango(@RequestParam("desde")
                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
                                   @RequestParam("hasta")
                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
-        return service.porRangoFechas(desde, hasta);
+        return service.porRangoFechas(desde, hasta).stream().map(ReservaMapper::toDto).toList();
     }
 }

@@ -1,45 +1,29 @@
-package cl.duoc.dsy2205.microservicio_reservas.entity;
+package cl.duoc.dsy2205.microservicio_reservas.dto;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "RESERVAS")
-public class Reserva {
+public class ReservaDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_RESERVA")
     private Long idReserva;
 
     @NotNull
-    @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
 
     @NotNull
     @Size(min = 4, max = 5)
-    @Column(name = "HORA_INICIO", nullable = false, length = 5)
     private String horaInicio;
 
     @NotNull
     @Size(min = 4, max = 5)
-    @Column(name = "HORA_FIN", nullable = false, length = 5)
     private String horaFin;
 
     @NotNull
-    @Column(name = "ID_LAB", nullable = false)
     private Long idLab;
 
     @NotNull
-    @Column(name = "ID_USUARIO", nullable = false)
     private Long idUsuario;
 
     public Long getIdReserva() { return idReserva; }
