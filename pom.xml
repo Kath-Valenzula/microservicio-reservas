@@ -45,6 +45,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- Actuator para health y métricas -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Driver Oracle + librerías SSL del wallet AUTONOMOUS DB -->
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
