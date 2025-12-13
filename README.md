@@ -1,11 +1,13 @@
+
 # Microservicio de Reservas (DSY2205)
 
-Microservicio REST con **Spring Boot 3.5.7** y **Java 21**. CRUD de reservas de laboratorios (fecha, horaInicio, horaFin, idLab, idUsuario) persistido en **Oracle Autonomous Database** mediante **Wallet TNS**.
+Este microservicio implementa el CRUD de reservas de laboratorios, persistiendo los datos en Oracle Autonomous Database. Desarrollado con Spring Boot 3.5.7 y Java 21, sigue un arquetipo propio para backend, estructurando el código en capas (controladores, servicios, repositorios, entidades y DTOs) para facilitar la mantenibilidad y la integración.
 
-## Contexto
-Asignatura **DSY2205 - Desarrollo de Microservicios**. Cubre: uso de Git, CRUD completo con Oracle, controladores REST y consultas a tablas reales.
+El trabajo colaborativo se gestiona mediante GIT, con ramas de desarrollo, revisiones por pull request y control de versiones. El repositorio mantiene la rama principal estable y documenta los cambios con mensajes claros y convenciones estándar.
 
-## Tecnologías
+La integración con el frontend Angular se realiza a través de APIs REST, cumpliendo con los requisitos de interoperabilidad y seguridad definidos para la asignatura.
+
+## Tecnologías principales
 - Java 21
 - Spring Boot 3.5.7
 - Spring Web
@@ -34,7 +36,7 @@ spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.OracleDialect
 
 spring.jackson.serialization.indent-output=true
-````
+```
 
 ## Build y ejecución
 
