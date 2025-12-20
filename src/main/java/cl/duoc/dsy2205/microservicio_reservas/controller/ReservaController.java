@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cl.duoc.dsy2205.microservicio_reservas.dto.ReservaDTO;
+import cl.duoc.dsy2205.microservicio_reservas.dto.ReservaAsignacionDTO;
 import cl.duoc.dsy2205.microservicio_reservas.entity.Reserva;
 import cl.duoc.dsy2205.microservicio_reservas.mapper.ReservaMapper;
 import cl.duoc.dsy2205.microservicio_reservas.service.ReservaService;
@@ -51,6 +52,15 @@ public class ReservaController {
         Reserva r = ReservaMapper.toEntity(rDto);
         log.info("POST /api/reservas - creating reserva: user={} lab={}", r.getIdUsuario(), r.getIdLab());
         Reserva creada = service.create(r);
+        Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
+        URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
+        return ResponseEntity.created(location).body(ReservaMapper.toDto(creada));
+    }
+
+    @PostMapping("/asignar")
+    public ResponseEntity<ReservaDTO> asignar(@Valid @RequestBody ReservaAsignacionDTO dto) {
+        log.info("POST /api/reservas/asignar - user={} fecha={}", dto.getIdUsuario(), dto.getFecha());
+        Reserva creada = service.asignar(dto.getIdUsuario(), dto.getFecha(), dto.getHoraInicio(), dto.getHoraFin());
         Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
         URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
         return ResponseEntity.created(location).body(ReservaMapper.toDto(creada));

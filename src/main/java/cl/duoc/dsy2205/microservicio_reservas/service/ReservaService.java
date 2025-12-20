@@ -12,6 +12,7 @@ public interface ReservaService {
     Reserva create(Reserva r);
     Optional<Reserva> update(Long idReserva, Reserva r);
     boolean delete(Long idReserva);
+    Reserva asignar(Long idUsuario, LocalDate fecha, String horaInicio, String horaFin);
 
     List<Reserva> porUsuario(Long idUsuario);
     List<Reserva> porLaboratorio(Long idLab);

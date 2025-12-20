@@ -76,4 +76,23 @@ public class ReservaControllerTest {
             .content(Objects.requireNonNull(mapper.writeValueAsString(input))))
                 .andExpect(status().is5xxServerError());
     }
+
+    @Test
+    void asignarHappyPath() throws Exception {
+        Reserva created = new Reserva();
+        created.setIdReserva(5L);
+        created.setFecha(LocalDate.now());
+        created.setHoraInicio("09:00");
+        created.setHoraFin("10:00");
+        created.setIdLab(1L);
+        created.setIdUsuario(2L);
+        when(service.asignar(any(Long.class), any(LocalDate.class), any(String.class), any(String.class))).thenReturn(created);
+
+        String body = "{\"fecha\":\"2025-11-06\",\"horaInicio\":\"09:00\",\"horaFin\":\"10:00\",\"idUsuario\":2}";
+        mvc.perform(post("/api/reservas/asignar")
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/reservas/5"));
+    }
 }
