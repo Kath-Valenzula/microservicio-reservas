@@ -1,6 +1,7 @@
 package cl.duoc.dsy2205.microservicio_reservas.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,7 +145,7 @@ class ReservaServiceImplTest {
         Laboratorio lab1 = lab(1L, 1);
         Laboratorio lab2 = lab(2L, 2);
         stubUsuarioExists(2L);
-        when(laboratorioRepository.findAll()).thenReturn(List.of(lab1, lab2));
+        when(laboratorioRepository.findAll()).thenReturn(new ArrayList<>(List.of(lab1, lab2)));
         when(laboratorioRepository.findById(2L)).thenReturn(Optional.of(lab2));
         when(repository.findByIdUsuarioAndFecha(2L, date)).thenReturn(List.of());
         when(repository.findByIdLabAndFecha(eq(1L), eq(date))).thenReturn(List.of(baseReserva(date, "09:00", "10:00", 1L, 9L)));
