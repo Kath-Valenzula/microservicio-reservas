@@ -28,6 +28,12 @@ public class ReservaServiceImpl implements ReservaService {
     private final LaboratorioRepository laboratorioRepository;
 
     private static final Pattern TIME_PATTERN = Pattern.compile("^([01]?\\d|2[0-3]):[0-5]\\d$");
+    private static final String RESERVA_NULL = "reserva debe no ser null";
+    private static final String ID_RESERVA_NULL = "idReserva debe no ser null";
+    private static final String ID_USUARIO_NULL = "idUsuario debe no ser null";
+    private static final String FECHA_NULL = "fecha debe no ser null";
+    private static final String HORA_INICIO_NULL = "horaInicio debe no ser null";
+    private static final String HORA_FIN_NULL = "horaFin debe no ser null";
 
     public ReservaServiceImpl(ReservaRepository repository,
                               AuthUsuarioRepository authUsuarioRepository,
@@ -42,7 +48,7 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public Optional<Reserva> findById(Long idReserva) {
-        Objects.requireNonNull(idReserva, "idReserva debe no ser null");
+        Objects.requireNonNull(idReserva, ID_RESERVA_NULL);
         Reserva r = repository.findById(idReserva)
                 .orElseThrow(() -> new cl.duoc.dsy2205.microservicio_reservas.exception.ResourceNotFoundException("Reserva no encontrada id=" + idReserva));
         return Optional.of(r);
@@ -51,21 +57,15 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional
     public Reserva create(Reserva r) {
-        Objects.requireNonNull(r, "reserva debe no ser null");
-        r.setIdReserva(null);
-        validateReservaBusinessRules(r, null);
-        try {
-            return Objects.requireNonNull(repository.save(r));
-        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
-            throw new IntegrityViolationException("No se puede crear la reserva: el usuario o laboratorio no existe, o hay una restriccion de integridad");
-        }
+        Objects.requireNonNull(r, RESERVA_NULL);
+        return saveNewReserva(r);
     }
 
     @Override
     @Transactional
     public Optional<Reserva> update(Long idReserva, Reserva r) {
-        Objects.requireNonNull(idReserva, "idReserva debe no ser null");
-        Objects.requireNonNull(r, "reserva debe no ser null");
+        Objects.requireNonNull(idReserva, ID_RESERVA_NULL);
+        Objects.requireNonNull(r, RESERVA_NULL);
         Reserva existing = repository.findById(idReserva)
                 .orElseThrow(() -> new cl.duoc.dsy2205.microservicio_reservas.exception.ResourceNotFoundException("Reserva no encontrada id=" + idReserva));
 
@@ -87,7 +87,7 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional
     public boolean delete(Long idReserva) {
-        Objects.requireNonNull(idReserva, "idReserva debe no ser null");
+        Objects.requireNonNull(idReserva, ID_RESERVA_NULL);
         return repository.findById(idReserva).map(x -> {
             try {
                 repository.delete(Objects.requireNonNull(x));
@@ -101,10 +101,10 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional
     public Reserva asignar(Long idUsuario, LocalDate fecha, String horaInicio, String horaFin) {
-        Objects.requireNonNull(idUsuario, "idUsuario debe no ser null");
-        Objects.requireNonNull(fecha, "fecha debe no ser null");
-        Objects.requireNonNull(horaInicio, "horaInicio debe no ser null");
-        Objects.requireNonNull(horaFin, "horaFin debe no ser null");
+        Objects.requireNonNull(idUsuario, ID_USUARIO_NULL);
+        Objects.requireNonNull(fecha, FECHA_NULL);
+        Objects.requireNonNull(horaInicio, HORA_INICIO_NULL);
+        Objects.requireNonNull(horaFin, HORA_FIN_NULL);
         ensureUsuarioExists(idUsuario);
         LocalTime inicio = parseTimeOrThrow(horaInicio, "horaInicio");
         LocalTime fin = parseTimeOrThrow(horaFin, "horaFin");
@@ -119,25 +119,25 @@ public class ReservaServiceImpl implements ReservaService {
         r.setHoraFin(horaFin);
         r.setIdUsuario(idUsuario);
         r.setIdLab(lab.getIdLab());
-        return create(r);
+        return saveNewReserva(r);
     }
 
     @Override
-    public List<Reserva> porUsuario(Long idUsuario) { Objects.requireNonNull(idUsuario, "idUsuario debe no ser null"); return repository.findByIdUsuario(idUsuario); }
+    public List<Reserva> porUsuario(Long idUsuario) { Objects.requireNonNull(idUsuario, ID_USUARIO_NULL); return repository.findByIdUsuario(idUsuario); }
 
     @Override
     public List<Reserva> porLaboratorio(Long idLab) { Objects.requireNonNull(idLab, "idLab debe no ser null"); return repository.findByIdLab(idLab); }
 
     @Override
-    public List<Reserva> porFecha(LocalDate fecha) { Objects.requireNonNull(fecha, "fecha debe no ser null"); return repository.findByFecha(fecha); }
+    public List<Reserva> porFecha(LocalDate fecha) { Objects.requireNonNull(fecha, FECHA_NULL); return repository.findByFecha(fecha); }
 
     @Override
     public List<Reserva> porRangoFechas(LocalDate desde, LocalDate hasta) { Objects.requireNonNull(desde, "desde debe no ser null"); Objects.requireNonNull(hasta, "hasta debe no ser null"); return repository.findByFechaBetween(desde, hasta); }
 
     private void validateReservaBusinessRules(Reserva r, Long excludeIdReserva) {
-        Objects.requireNonNull(r.getFecha(), "fecha debe no ser null");
+        Objects.requireNonNull(r.getFecha(), FECHA_NULL);
         Objects.requireNonNull(r.getIdLab(), "idLab debe no ser null");
-        Objects.requireNonNull(r.getIdUsuario(), "idUsuario debe no ser null");
+        Objects.requireNonNull(r.getIdUsuario(), ID_USUARIO_NULL);
         ensureUsuarioExists(r.getIdUsuario());
         Laboratorio lab = ensureLaboratorioExists(r.getIdLab());
         LocalTime inicio = parseTimeOrThrow(r.getHoraInicio(), "horaInicio");
@@ -235,6 +235,16 @@ public class ReservaServiceImpl implements ReservaService {
             return "0" + value;
         }
         return value;
+    }
+
+    private Reserva saveNewReserva(Reserva r) {
+        r.setIdReserva(null);
+        validateReservaBusinessRules(r, null);
+        try {
+            return Objects.requireNonNull(repository.save(r));
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new IntegrityViolationException("No se puede crear la reserva: el usuario o laboratorio no existe, o hay una restriccion de integridad");
+        }
     }
 
     private void ensureUsuarioExists(Long idUsuario) {

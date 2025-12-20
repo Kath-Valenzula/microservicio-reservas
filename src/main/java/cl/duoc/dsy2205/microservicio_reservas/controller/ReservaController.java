@@ -50,7 +50,7 @@ public class ReservaController {
     @PostMapping
     public ResponseEntity<ReservaDTO> crear(@Valid @RequestBody ReservaDTO rDto) {
         Reserva r = ReservaMapper.toEntity(rDto);
-        log.info("POST /api/reservas - creating reserva: user={} lab={}", r.getIdUsuario(), r.getIdLab());
+        log.info("POST /api/reservas - creating reserva");
         Reserva creada = service.create(r);
         Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
         URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
@@ -59,7 +59,7 @@ public class ReservaController {
 
     @PostMapping("/asignar")
     public ResponseEntity<ReservaDTO> asignar(@Valid @RequestBody ReservaAsignacionDTO dto) {
-        log.info("POST /api/reservas/asignar - user={} fecha={}", dto.getIdUsuario(), dto.getFecha());
+        log.info("POST /api/reservas/asignar");
         Reserva creada = service.asignar(dto.getIdUsuario(), dto.getFecha(), dto.getHoraInicio(), dto.getHoraFin());
         Long id = Objects.requireNonNull(creada.getIdReserva(), "Created reserva id is null");
         URI location = Objects.requireNonNull(URI.create("/api/reservas/" + id));
@@ -76,7 +76,7 @@ public class ReservaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        log.info("DELETE /api/reservas/{}", id);
+        log.info("DELETE /api/reservas/{id}");
         return service.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 

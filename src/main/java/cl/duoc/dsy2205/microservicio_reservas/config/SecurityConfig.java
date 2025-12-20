@@ -41,12 +41,6 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(AuthUsuarioRepository usuarioRepository) {
         return username -> {
-            if ("admin".equalsIgnoreCase(username)) {
-                return User.withUsername("admin")
-                        .password(passwordEncoder().encode("admin123"))
-                        .roles("USER", "ADMIN")
-                        .build();
-            }
             AuthUsuario usuario = usuarioRepository.findByCorreoIgnoreCase(username)
                     .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
             return User.withUsername(usuario.getCorreo())
